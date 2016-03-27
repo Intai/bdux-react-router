@@ -41,8 +41,10 @@ const deferUpdateLocation = R.wrap(
 );
 
 export const createLocationHistory = R.pipe(
-  // defer to be after render.
-  deferUpdateLocation,
+  R.when(R.is(Object),
+    // defer to be after render.
+    deferUpdateLocation
+  ),
   // always return the same react-router history
   // because it does not support changing history.
   R.always(history)
