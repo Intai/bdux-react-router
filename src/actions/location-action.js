@@ -40,6 +40,16 @@ const isCurrentLocation = R.converge(
   ]
 );
 
+const createLocation = (location) => (
+  history.createLocation(location)
+);
+
+const mapLocation = R.ifElse(
+  R.is(String),
+  createLocation,
+  R.identity
+);
+
 const updateHistory = R.curry((action, location) => {
   // if updating to a different location.
   if (!isCurrentLocation(location)) {
@@ -72,12 +82,14 @@ export const listen = onceThenNull(() => (
   }))
 ));
 
-export const push = updateHistory(
-  'push'
+export const push = R.pipe(
+  mapLocation,
+  updateHistory('push')
 );
 
-export const replace = updateHistory(
-  'replace'
+export const replace = R.pipe(
+  mapLocation,
+  updateHistory('replace')
 );
 
 export default bindToDispatch({

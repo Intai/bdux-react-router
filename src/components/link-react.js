@@ -8,9 +8,7 @@ const preventDefault = ({ event }) => {
 };
 
 const pushPath = ({ to }) => {
-  LocationAction.push({
-    pathname: to
-  });
+  LocationAction.push(to);
 };
 
 const goToArgs = (...args) => (
