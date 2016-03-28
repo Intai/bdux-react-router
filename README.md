@@ -11,6 +11,26 @@ npm install --save bdux-react-router
 ```
 
 ## Usage
+``` javascript
+import React from 'react';
+import Routes from '../routes';
+import { Router, createLocationHistory } from 'bdux-react-router';
+import { LocationAction, LocationStore } from 'bdux-react-router';
+import { createComponent } from 'bdux'
+
+export const App = ({ location }) => (
+  <Router history={ createLocationHistory(location) }
+    routes={ Routes } />
+);
+
+export default createComponent(App, {
+  location: LocationStore
+},
+// start listening to browser history.
+LocationAction.listen);
+```
+Browser history changes are captured in `LocationAction` to `LocationStore` then into `Router`. The router component itself does not listen to browser history directly. This data flow ensures routing can be recorded and replayed by middleware.
+
 ## Link
 
 ## License
