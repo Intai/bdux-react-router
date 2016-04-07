@@ -4,12 +4,13 @@ import LocationAction from './actions/location-action';
 import { createMemoryHistory } from 'react-router';
 
 const history = createMemoryHistory();
+const historyListen = history.listen;
 
 history.listen = (() => {
   let prev = () => {};
   return (callback) => (
     (callback)
-      ? (prev = callback)
+      ? ((prev = callback) && historyListen(callback))
       : prev
   );
 })();
