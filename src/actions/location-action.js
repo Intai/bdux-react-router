@@ -5,9 +5,19 @@ import ActionTypes from './action-types';
 import { createHistory, createMemoryHistory } from 'history';
 import { bindToDispatch } from 'bdux';
 
-const history = (Common.canUseDOM())
-  ? createHistory()
-  : createMemoryHistory();
+const createPlatformHistory = R.ifElse(
+  Common.canUseDOM,
+  createHistory,
+  createMemoryHistory
+);
+
+const getHistory = (() => {
+  let history;
+  return () => (
+    (history) ? history
+      : (history = createPlatformHistory())
+  );
+})();
 
 const currentLocation = (() => {
   let prev = {};
@@ -41,7 +51,7 @@ const isCurrentLocation = R.converge(
 );
 
 const createLocation = (location) => (
-  history.createLocation(location)
+  getHistory().createLocation(location)
 );
 
 const mapLocation = R.ifElse(
@@ -54,7 +64,7 @@ const updateHistory = R.curry((action, location) => {
   // if updating to a different location.
   if (!isCurrentLocation(location)) {
     // push or replace with the new location.
-    history[action](cloneLocation(location));
+    getHistory()[action](cloneLocation(location));
   }
 });
 
@@ -73,7 +83,7 @@ const pushLocation = R.curry((sink, location) => {
 
 export const listen = onceThenNull(() => (
   Bacon.fromBinder((sink) => {
-    return history.listen(pushLocation(sink));
+    return getHistory().listen(pushLocation(sink));
   })
   .doAction(currentLocation)
   .map(R.objOf('location'))
