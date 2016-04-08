@@ -7,16 +7,20 @@ const mapToKeyValue = (obj, key) => {
   return obj
 };
 
+const canUseDOM = R.once(() => (
+  typeof window !== 'undefined'
+    && window.document
+    && window.document.createElement
+));
+
 export default {
 
-  canUseDOM: R.once(() => (
-    typeof window !== 'undefined'
-      && window.document
-      && window.document.createElement
-  )),
+  canUseDOM,
 
-  defer: (func, ...args) => {
-    setTimeout(R.partial(func, args), 1);
+  deferOnClient: (func, ...args) => {
+    if (canUseDOM()) {
+      setTimeout(R.partial(func, args), 1);
+    }
   },
 
   // map an array of strings to

@@ -3,31 +3,68 @@ import Common from './utils/common-util';
 import LocationAction from './actions/location-action';
 import { createMemoryHistory } from 'react-router';
 
-const proxyHistoryListen = R.tap((history) => {
+const replaceHistoryListen = (passthrough, history) => {
   let historyListen = history.listen;
   let prevListen = () => {};
 
   history.listen = (callback) => (
     (callback)
-      ? ((prevListen = callback) && !Common.canUseDOM() && historyListen(callback))
+      // passthrough to initialise with a location.
+      ? ((prevListen = callback) && passthrough && historyListen(callback))
       : prevListen
   );
-});
 
-const createHistory = (location) => (
-  proxyHistoryListen(
-    (location)
-    ? createMemoryHistory(location)
-    : createMemoryHistory())
+  return history;
+};
+
+const proxyHistoryListen = R.partial(
+  replaceHistoryListen, [true]
 );
 
-const getHistory = (() => {
+const hijackHistoryListen = R.partial(
+  replaceHistoryListen, [false]
+);
+
+const getPathname = R.ifElse(
+  R.is(Object),
+  R.prop('pathname'),
+  R.identity
+);
+
+const createHistoryWithLocation = (location) => (
+  proxyHistoryListen(
+    createMemoryHistory(getPathname(location)))
+);
+
+const createHistoryWithoutLocation = () => (
+  hijackHistoryListen(
+    createMemoryHistory())
+);
+
+const createHistory = R.ifElse(
+  R.identity,
+  createHistoryWithLocation,
+  createHistoryWithoutLocation
+);
+
+const historyProp = (() => {
   let history;
-  return (location) => (
-    (history) ? history
-      : (history = createHistory(location))
+  let setHistory = (location) => (
+    history = createHistory(location)
   );
+
+  return {
+    setHistory,
+    getHistory: (location) => (
+      (history) ? history
+        : setHistory(location)
+    )
+  };
 })();
+
+const getHistory = (
+  historyProp.getHistory
+);
 
 const getHistoryListen = R.pipe(
   getHistory,
@@ -52,19 +89,18 @@ const updateLocation = R.pipe(
   pushHistoryListen
 );
 
-const deferForDom = (...args) => {
-  if (Common.canUseDOM()) {
-    R.apply(Common.defer, args);
-  }
-};
-
 const deferUpdateLocation = R.wrap(
   updateLocation,
-  deferForDom
+  Common.deferOnClient
+);
+
+export const resetLocationHistory = (
+  // force to recreate history.
+  historyProp.setHistory
 );
 
 export const createLocationHistory = R.pipe(
-  // initialise history.
+  // initialise history if hasn't.
   R.tap(getHistory),
   R.when(R.is(Object),
     // defer to be after render.
