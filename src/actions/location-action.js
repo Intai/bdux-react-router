@@ -81,10 +81,18 @@ const pushLocation = R.curry((sink, location) => {
   sink(location);
 });
 
+const shouldDispatchAction = R.complement(
+  R.allPass([
+    R.is(Object),
+    R.path(['state', 'skipAction'])
+  ])
+);
+
 export const listen = onceThenNull(() => (
   Bacon.fromBinder((sink) => {
     return getHistory().listen(pushLocation(sink));
   })
+  .filter(shouldDispatchAction)
   .doAction(currentLocation)
   .map(R.objOf('location'))
   .map(R.merge({

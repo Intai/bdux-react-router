@@ -72,6 +72,14 @@ const getHistoryListen = R.pipe(
   R.call
 );
 
+const addLocationState = (location) => (
+  R.mergeWith(R.merge, location, {
+    state: {
+      skipAction: true
+    }
+  })
+);
+
 const pushHistoryListen = R.converge(
   R.call, [
     // get the callback currently
@@ -83,6 +91,8 @@ const pushHistoryListen = R.converge(
 );
 
 const updateLocation = R.pipe(
+  // add state to skip action.
+  addLocationState,
   // update browser history through action.
   R.tap(LocationAction.replace),
   // trigger react-router history listen.
