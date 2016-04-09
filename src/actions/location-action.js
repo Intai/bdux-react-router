@@ -1,6 +1,7 @@
 import R from 'ramda';
 import Bacon from 'baconjs';
 import Common from '../utils/common-util';
+import Storage from '../utils/storage-util';
 import ActionTypes from './action-types';
 import { createHistory, createMemoryHistory } from 'history';
 import { bindToDispatch } from 'bdux';
@@ -81,6 +82,10 @@ const pushLocation = R.curry((sink, location) => {
   sink(location);
 });
 
+const removeHistorySession = (location) => {
+  Storage.remove('@@History/' + location.key);
+};
+
 const shouldDispatchAction = R.complement(
   R.allPass([
     R.is(Object),
@@ -92,8 +97,13 @@ export const listen = onceThenNull(() => (
   Bacon.fromBinder((sink) => {
     return getHistory().listen(pushLocation(sink));
   })
+  // remove session entry created by history library.
+  .doAction(removeHistorySession)
+  // don't dispatch another action from location-history.
   .filter(shouldDispatchAction)
+  // remember the location object.
   .doAction(currentLocation)
+  // create an action to update location store.
   .map(R.objOf('location'))
   .map(R.merge({
     type: ActionTypes.ROUTE_LOCATION_UPDATE
