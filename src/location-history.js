@@ -104,9 +104,11 @@ const deferUpdateLocation = R.wrap(
   Common.deferOnClient
 );
 
-export const resetLocationHistory = (
+export const resetLocationHistory = R.pipe(
   // force to recreate history.
-  historyProp.setHistory
+  R.tap(historyProp.setHistory),
+  // and update location store.
+  LocationAction.replace
 );
 
 export const createLocationHistory = R.pipe(
