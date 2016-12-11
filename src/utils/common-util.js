@@ -17,7 +17,7 @@ export default {
 
   canUseDOM,
 
-  deferOnClient: (func, ...args) => {
+  deferOnClient: (func) => (...args) => {
     if (canUseDOM()) {
       setTimeout(R.partial(func, args), 1);
     }

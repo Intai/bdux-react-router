@@ -1,84 +1,62 @@
-import R from 'ramda';
-import Common from './utils/common-util';
-import LocationAction from './actions/location-action';
-import { createMemoryHistory } from 'react-router';
+import R from 'ramda'
+import Common from './utils/common-util'
+import LocationAction from './actions/location-action'
+import { createMemoryHistory } from 'react-router'
 
-const replaceHistoryListen = (passthrough, history) => {
-  let historyListen = history.listen;
-  let prevListen = () => {};
+const hijackHistoryListen = (history) => {
+  let prevListen = R.F
 
   history.listen = (callback) => (
     (callback)
-      // passthrough to initialise with a location.
-      ? ((prevListen = callback) && passthrough && historyListen(callback))
+      // bind the listener.
+      ? (prevListen = callback)
+      // return the currently bound listener.
       : prevListen
-  );
+  )
 
-  return history;
-};
-
-const proxyHistoryListen = R.partial(
-  replaceHistoryListen, [true]
-);
-
-const hijackHistoryListen = R.partial(
-  replaceHistoryListen, [false]
-);
+  return history
+}
 
 const getPathname = R.ifElse(
   R.is(Object),
   R.prop('pathname'),
-  R.identity
-);
+  R.defaultTo({})
+)
 
-const createHistoryWithLocation = (location) => (
-  proxyHistoryListen(
-    createMemoryHistory(getPathname(location)))
-);
-
-const createHistoryWithoutLocation = () => (
-  hijackHistoryListen(
-    createMemoryHistory())
-);
-
-const createHistory = R.ifElse(
-  R.identity,
-  createHistoryWithLocation,
-  createHistoryWithoutLocation
-);
+const createHistory = R.pipe(
+  getPathname,
+  createMemoryHistory,
+  hijackHistoryListen
+)
 
 const historyProp = (() => {
-  let history;
-  let setHistory = (location) => (
+  let history
+  const setHistory = (location) => (
     history = createHistory(location)
-  );
+  )
 
   return {
     setHistory,
     getHistory: (location) => (
-      (history) ? history
-        : setHistory(location)
+      history || setHistory(location)
     )
-  };
-})();
+  }
+})()
 
 const getHistory = (
   historyProp.getHistory
-);
+)
 
 const getHistoryListen = R.pipe(
   getHistory,
   R.prop('listen'),
   R.call
-);
+)
 
-const addLocationState = (location) => (
-  R.mergeWith(R.merge, location, {
-    state: {
-      skipAction: true
-    }
-  })
-);
+const addLocationState = R.assocPath(
+  ['state', 'skipAction'],
+  true
+)
 
 const pushHistoryListen = R.converge(
   R.call, [
@@ -88,7 +66,7 @@ const pushHistoryListen = R.converge(
     // the new location.
     R.identity
   ]
-);
+)
 
 const updateLocation = R.pipe(
   // add state to skip action.
@@ -97,28 +75,27 @@ const updateLocation = R.pipe(
   R.tap(LocationAction.replace),
   // trigger react-router history listen.
   pushHistoryListen
-);
+)
 
-const deferUpdateLocation = R.wrap(
-  updateLocation,
-  Common.deferOnClient
-);
+const deferUpdateLocation = R.when(
+  R.is(Object),
+  Common.deferOnClient(updateLocation)
+)
 
 export const resetLocationHistory = R.pipe(
   // force to recreate history.
   R.tap(historyProp.setHistory),
   // and update location store.
   LocationAction.replace
-);
+)
 
-export const createLocationHistory = R.pipe(
-  // initialise history if hasn't.
-  R.tap(getHistory),
-  R.when(R.is(Object),
+export const createLocationHistory = R.converge(
+  R.identity, [
+    // initialise history if hasn't.
+    // always return the same react-router history
+    // because it does not support changing history.
+    getHistory,
     // defer to be after render.
     deferUpdateLocation
-  ),
-  // always return the same react-router history
-  // because it does not support changing history.
-  getHistory
-);
+  ]
+)
