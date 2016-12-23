@@ -72,21 +72,21 @@ const updateLocation = R.pipe(
   // add state to skip action.
   addLocationState,
   // update browser history through action.
-  R.tap(LocationAction.replace),
+  R.tap(location => LocationAction.replace(location)),
   // trigger react-router history listen.
   pushHistoryListen
 )
 
 const deferUpdateLocation = R.when(
   R.is(Object),
-  Common.deferOnClient(updateLocation)
+  location => Common.deferOnClient(updateLocation)(location)
 )
 
 export const resetLocationHistory = R.pipe(
   // force to recreate history.
   R.tap(historyProp.setHistory),
   // and update location store.
-  LocationAction.replace
+  location => LocationAction.replace(location)
 )
 
 export const createLocationHistory = R.converge(
