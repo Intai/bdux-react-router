@@ -648,7 +648,7 @@ balanced-match@^0.4.1:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-0.4.2.tgz#cb3f3e3c732dc0f01ee70b403f302e61d7709838"
 
-bdux@^0.1.23:
+bdux:
   version "0.1.25"
   resolved "https://registry.yarnpkg.com/bdux/-/bdux-0.1.25.tgz#4f23d4f0ea90fb026a7cb315953c2256f7824400"
   dependencies:

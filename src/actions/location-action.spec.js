@@ -6,6 +6,7 @@ import Bacon from 'baconjs'
 import Common from '../utils/common-util'
 import Storage from '../utils/storage-util'
 import ActionTypes from '../actions/action-types'
+import { getActionStream } from 'bdux'
 import LocationAction, {
   createPlatformHistory,
   getHistory,
@@ -27,8 +28,10 @@ describe('Location Action', () => {
   })
 
   it('should start listening only once', () => {
+    const dispose = getActionStream().onValue()
     LocationAction.listen()
     chai.expect(LocationAction.listen()).to.not.be.ok
+    dispose()
   })
 
   it('should not return action directly from push', () => {
