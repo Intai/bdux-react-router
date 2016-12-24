@@ -39,6 +39,7 @@ describe('Location History', () => {
   })
 
   it('should set the current location', () => {
+    sandbox.stub(LocationAction, 'replace')
     resetLocationHistory({ pathname: '/test' })
     const history = createLocationHistory(undefined)
     chai.expect(history.getCurrentLocation()).to.include({
@@ -75,13 +76,13 @@ describe('Location History', () => {
   describe('on client', () => {
 
     beforeEach(() => {
+      sandbox.stub(LocationAction, 'replace')
       sandbox.stub(Common, 'deferOnClient').returns((location) => {
         Common.deferOnClient.lastCall.args[0](location)
       })
     })
 
     it('should replace location thourgh action', () => {
-      sandbox.stub(LocationAction, 'replace')
       createLocationHistory({})
       chai.expect(LocationAction.replace.calledOnce).to.be.true
       chai.expect(LocationAction.replace.lastCall.args[0]).to.eql({
