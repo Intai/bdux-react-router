@@ -1,15 +1,14 @@
-import R from 'ramda';
-import Common from './common-util';
+import R from 'ramda'
+import Common from './common-util'
 
-const whenCanUseDOM = R.flip(R.wrap)((func, ...args) => (
-  Common.canUseDOM()
-    && func.apply(func, args)
-));
+export const remove = (name) => (
+  window.sessionStorage.removeItem(name)
+)
 
 export default {
 
-  remove: whenCanUseDOM((name) => (
-    window.sessionStorage
-      .removeItem(name)
-  ))
-};
+  remove: R.when(
+    () => Common.canUseDOM(),
+    remove
+  )
+}
