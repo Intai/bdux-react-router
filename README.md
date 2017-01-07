@@ -1,7 +1,11 @@
 # Bdux React Router
 
+[![Build Status](https://travis-ci.org/Intai/bdux-react-router.svg?branch=master)](https://travis-ci.org/Intai/bdux-react-router)
+[![Coverage Status](https://coveralls.io/repos/github/Intai/bdux-react-router/badge.svg?branch=master)](https://coveralls.io/github/Intai/bdux-react-router?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7aed9be8c1ad42f2924d02d3bd32cdf2)](https://www.codacy.com/app/intai-hg/bdux-react-router?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Intai/bdux-react-router&amp;utm_campaign=Badge_Grade)
+
 ## Want to achieve
-- Record and travel back in the history of URL changes with [bdux-timetravel](https://github.com/Intai/bdux-timetravel). 
+- Record and travel back in the history of URL changes with [bdux-timetravel](https://github.com/Intai/bdux-timetravel).
 - Utilise routing library [react-router](https://github.com/reactjs/react-router).
 
 ## Installation

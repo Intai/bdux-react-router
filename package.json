@@ -4,7 +4,7 @@
   "description": "A Bdux Addon",
   "main": "lib/main.js",
   "scripts": {
-    "test": "gulp test",
+    "test": "gulp cover",
     "prepublish": "gulp build"
   },
   "repository": {
@@ -38,6 +38,7 @@
     "baconjs": "^0.7.89",
     "bdux": "^0.1.25",
     "chai": "^3.5.0",
+    "coveralls": "^2.11.15",
     "del": "^2.2.0",
     "enzyme": "^2.7.0",
     "eslint": "^3.13.0",
