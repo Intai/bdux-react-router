@@ -61,7 +61,7 @@ describe('Location Action', () => {
   it('should load the current pathname', () => {
     const callback = sinon.stub()
     const history = getHistory()
-    history.push(history.createLocation('/test'))
+    history.push('/test')
     listen().onValue(callback)
     chai.expect(callback.calledOnce).to.be.true
     chai.expect(callback.lastCall.args[0]).to.have.property('location')
@@ -98,11 +98,8 @@ describe('Location Action', () => {
     listen().onValue(callback)
     push('/test/push')
     chai.expect(callback.calledTwice).to.be.true
-    chai.expect(callback.lastCall.args[0]).to.have.property('location')
-      .and.include({
-        action: 'PUSH',
-        pathname: '/test/push'
-      })
+    chai.expect(callback.lastCall.args[0]).to.have.deep.property('location.pathname')
+      .and.equal('/test/push')
   })
 
   it('should push a history location', () => {
@@ -143,11 +140,8 @@ describe('Location Action', () => {
     listen().onValue(callback)
     replace('/test/replace')
     chai.expect(callback.calledTwice).to.be.true
-    chai.expect(callback.lastCall.args[0]).to.have.property('location')
-      .and.include({
-        action: 'REPLACE',
-        pathname: '/test/replace'
-      })
+    chai.expect(callback.lastCall.args[0]).to.have.deep.property('location.pathname')
+      .and.equal('/test/replace')
   })
 
   it('should replace a history location without creating an action', () => {
@@ -155,7 +149,7 @@ describe('Location Action', () => {
     listen().onValue(callback)
     replace({ pathname: '/test/replace/skip', state: { skipAction: true } })
     chai.expect(callback.calledOnce).to.be.true
-    chai.expect(getHistory().getCurrentLocation()).to.have.property('pathname')
+    chai.expect(getHistory().location).to.have.property('pathname')
       .and.equal('/test/replace/skip')
   })
 

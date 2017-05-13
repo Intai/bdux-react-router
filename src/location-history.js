@@ -1,7 +1,7 @@
 import R from 'ramda'
 import Common from './utils/common-util'
 import LocationAction from './actions/location-action'
-import { createMemoryHistory } from 'react-router'
+import { createMemoryHistory } from 'history'
 
 const hijackHistoryListen = (history) => {
   let prevListen = R.F
@@ -17,14 +17,19 @@ const hijackHistoryListen = (history) => {
   return history
 }
 
-const getPathname = R.ifElse(
-  R.is(Object),
-  R.prop('pathname'),
-  R.defaultTo({})
+const getPathname = R.propOr(
+  null, 'pathname'
+)
+
+const createInitialEntries = R.ifElse(
+  R.identity,
+  R.pipe(R.of, R.objOf('initialEntries')),
+  R.always({})
 )
 
 const createHistory = R.pipe(
   getPathname,
+  createInitialEntries,
   createMemoryHistory,
   hijackHistoryListen
 )

@@ -3,12 +3,12 @@ import Bacon from 'baconjs'
 import Common from '../utils/common-util'
 import Storage from '../utils/storage-util'
 import ActionTypes from './action-types'
-import { createHistory, createMemoryHistory } from 'history'
+import { createBrowserHistory, createMemoryHistory } from 'history'
 import { bindToDispatch } from 'bdux'
 
 export const createPlatformHistory = R.ifElse(
   () => Common.canUseDOM(),
-  createHistory,
+  createBrowserHistory,
   createMemoryHistory
 )
 
@@ -54,9 +54,9 @@ const isCurrentLocation = R.converge(
   ]
 )
 
-const createLocation = (location) => (
-  getHistory().createLocation(location)
-)
+const createLocation = (location) => ({
+  pathname: location
+})
 
 const mapLocation = R.ifElse(
   R.is(String),
@@ -96,11 +96,9 @@ const shouldDispatchAction = R.complement(
 export const listen = () => (
   Bacon.mergeAll(
     // stream the current location.
-    Bacon.once(getHistory().getCurrentLocation()),
+    Bacon.once(getHistory().location),
     // location changes since the listening.
-    Bacon.fromBinder(sink => {
-      return getHistory().listen(pushLocation(sink))
-    })
+    Bacon.fromBinder(sink => getHistory().listen(pushLocation(sink)))
   )
   // remove session entry created by history library.
   .doAction(removeHistorySession)

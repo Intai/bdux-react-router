@@ -24,7 +24,7 @@ describe('Location History', () => {
 
   it('should have a default current location', () => {
     const history = createLocationHistory(null)
-    chai.expect(history.getCurrentLocation()).to.include({
+    chai.expect(history.location).to.include({
       pathname: '/',
       search: '',
       hash: '',
@@ -42,7 +42,7 @@ describe('Location History', () => {
     sandbox.stub(LocationAction, 'replace')
     resetLocationHistory({ pathname: '/test' })
     const history = createLocationHistory(undefined)
-    chai.expect(history.getCurrentLocation()).to.include({
+    chai.expect(history.location).to.include({
       pathname: '/test',
       search: '',
       hash: '',
