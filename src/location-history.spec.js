@@ -106,6 +106,14 @@ describe('Location History', () => {
       })
     })
 
+    it('should update location along with listener', () => {
+      const history = createLocationHistory(null)
+      createLocationHistory({ pathname: '/test' })
+      chai.expect(history.location).to.eql({
+        pathname: '/test'
+      })
+    })
+
   })
 
   afterEach(() => {

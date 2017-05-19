@@ -36,24 +36,16 @@ const createHistory = R.pipe(
 
 const historyProp = (() => {
   let history
-  const setHistory = (location) => (
-    history = createHistory(location)
-  )
 
   return {
-    setHistory,
-    getHistory: (location) => (
-      history || setHistory(location)
-    )
+    setHistory: location => history = createHistory(location),
+    getHistory: location => history || (history = createHistory(location)),
+    updateHistory: location => history && location && (history.location = location)
   }
 })()
 
-const getHistory = (
-  historyProp.getHistory
-)
-
 const getHistoryListen = R.pipe(
-  getHistory,
+  historyProp.getHistory,
   R.prop('listen'),
   R.call
 )
@@ -99,7 +91,11 @@ export const createLocationHistory = R.converge(
     // initialise history if hasn't.
     // always return the same react-router history
     // because it does not support changing history.
-    getHistory,
+    historyProp.getHistory,
+    // react-router v4 doesn't update component
+    // with the location sent through history listen.
+    // workaround by modifying history itself.
+    historyProp.updateHistory,
     // defer to be after render.
     deferUpdateLocation
   ]

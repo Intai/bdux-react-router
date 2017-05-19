@@ -29,6 +29,10 @@ export const currentLocationProp = (() => {
   }
 })()
 
+const getInitialHistoryLocation = () => (
+  R.dissoc('state', getHistory().location)
+)
+
 const defaultKeyValue = (key, value) => R.over(
   R.lensProp(key),
   R.defaultTo(value)
@@ -96,7 +100,7 @@ const shouldDispatchAction = R.complement(
 export const listen = () => (
   Bacon.mergeAll(
     // stream the current location.
-    Bacon.once(getHistory().location),
+    Bacon.once(getInitialHistoryLocation()),
     // location changes since the listening.
     Bacon.fromBinder(sink => getHistory().listen(pushLocation(sink)))
   )

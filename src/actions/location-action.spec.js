@@ -50,6 +50,14 @@ describe('Location Action', () => {
       .and.equal(ActionTypes.ROUTE_LOCATION_UPDATE)
   })
 
+  it('should ignore the state of the current location', () => {
+    const callback = sinon.stub()
+    getHistory().location.state = {}
+    listen().onValue(callback)
+    chai.expect(callback.calledOnce).to.be.true
+    chai.expect(callback.lastCall.args[0]).to.not.have.deep.property('location.state')
+  })
+
   it('should have pathname for the current location', () => {
     const callback = sinon.stub()
     listen().onValue(callback)
