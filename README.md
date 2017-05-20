@@ -17,14 +17,17 @@ npm install --save bdux-react-router
 ## Usage
 ``` javascript
 import React from 'react';
-import Routes from '../routes';
-import { Router, createLocationHistory } from 'bdux-react-router';
+import { Router, Route, createLocationHistory } from 'bdux-react-router';
 import { LocationAction, LocationStore } from 'bdux-react-router';
 import { createComponent } from 'bdux'
 
 export const App = ({ location }) => (
-  <Router history={ createLocationHistory(location) }
-    routes={ Routes } />
+  <Router history={createLocationHistory(location)}>
+    <Route
+      component={Page}
+      path="/path"
+    />
+  </Router>
 );
 
 export default createComponent(App, {
@@ -46,14 +49,14 @@ For more complex scenarios, create components to work with `LocationAction.push`
 import React from 'react';
 import LocationAction from 'bdux-react-router';
 
-const onClick = () => {
+const handleClick = () => {
   LocationAction.push({
     pathname: '/path'
   });
 };
 
 export const Button = () => (
-  <button onClick={ onClick }> Go </button>
+  <button onClick={handleClick}> Go </button>
 );
 
 export default Button;
