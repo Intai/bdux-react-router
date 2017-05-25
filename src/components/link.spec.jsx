@@ -54,6 +54,7 @@ describe('Link Component', () => {
   })
 
   it('should be able style color', () => {
+    // eslint-disable-next-line react/jsx-max-props-per-line
     const wrapper = mountWithRouter(<Link style={{ color: 'test' }} to="/path" />)
     const link = wrapper.find('Link')
     chai.expect(link.prop('style')).to.have.property('color', 'test')
