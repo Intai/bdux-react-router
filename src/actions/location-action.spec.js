@@ -161,6 +161,15 @@ describe('Location Action', () => {
       .and.equal('/test/replace/skip')
   })
 
+  it('should remember the last location without creating an action', () => {
+    const callback = sinon.stub()
+    listen().onValue(callback)
+    replace({ pathname: '/test/current/skip', state: { skipAction: true } })
+    chai.expect(callback.calledOnce).to.be.true
+    chai.expect(currentLocationProp.getLocation()).to.have.property('pathname')
+      .and.equal('/test/current/skip')
+  })
+
   afterEach(() => {
     sandbox.restore()
   })

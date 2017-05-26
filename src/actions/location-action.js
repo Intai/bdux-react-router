@@ -106,10 +106,10 @@ export const listen = () => (
   )
   // remove session entry created by history library.
   .doAction(removeHistorySession)
-  // don't dispatch another action from location-history.
-  .filter(shouldDispatchAction)
   // remember the location object.
   .doAction(currentLocationProp.setLocation)
+  // don't dispatch another action from location-history.
+  .filter(shouldDispatchAction)
   // create an action to update location store.
   .map(R.objOf('location'))
   .map(R.assoc('type', ActionTypes.ROUTE_LOCATION_UPDATE))
