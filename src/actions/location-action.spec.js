@@ -55,7 +55,7 @@ describe('Location Action', () => {
     getHistory().location.state = {}
     listen().onValue(callback)
     chai.expect(callback.calledOnce).to.be.true
-    chai.expect(callback.lastCall.args[0]).to.not.have.deep.property('location.state')
+    chai.expect(callback.lastCall.args[0]).to.not.have.nested.property('location.state')
   })
 
   it('should have pathname for the current location', () => {
@@ -106,7 +106,7 @@ describe('Location Action', () => {
     listen().onValue(callback)
     push('/test/push')
     chai.expect(callback.calledTwice).to.be.true
-    chai.expect(callback.lastCall.args[0]).to.have.deep.property('location.pathname')
+    chai.expect(callback.lastCall.args[0]).to.have.nested.property('location.pathname')
       .and.equal('/test/push')
   })
 
@@ -148,7 +148,7 @@ describe('Location Action', () => {
     listen().onValue(callback)
     replace('/test/replace')
     chai.expect(callback.calledTwice).to.be.true
-    chai.expect(callback.lastCall.args[0]).to.have.deep.property('location.pathname')
+    chai.expect(callback.lastCall.args[0]).to.have.nested.property('location.pathname')
       .and.equal('/test/replace')
   })
 
