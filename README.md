@@ -10,12 +10,12 @@
 
 ## Installation
 To install as an [npm](https://www.npmjs.com/) package:
-```
+```sh
 npm install --save bdux-react-router
 ```
 
 ## Usage
-``` javascript
+```javascript
 import React from 'react';
 import { Router, Route, createLocationHistory } from 'bdux-react-router';
 import { LocationAction, LocationStore } from 'bdux-react-router';
@@ -40,12 +40,12 @@ Browser history changes are captured in `LocationAction` to `LocationStore` then
 
 ## Link
 Link component is a convenient way to create a simple anchor element to update browser history through `LocationAction` without reloading the entire page.
-``` javascript
+```javascript
 <Link to="/path"> Text </Link>
 ```
 
 For more complex scenarios, create components to work with `LocationAction.push` or `LocationAction.replace`. Underneath these two functions use library [history](https://github.com/mjackson/history). Refer to their documentation about [location](https://github.com/mjackson/history/blob/master/docs/Location.md) for details.
-``` javascript
+```javascript
 import React from 'react';
 import LocationAction from 'bdux-react-router';
 
