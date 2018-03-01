@@ -1,4 +1,4 @@
-import R from 'ramda'
+import * as R from 'ramda'
 import Common from './utils/common-util'
 import LocationAction from './actions/location-action'
 import { createMemoryHistory } from 'history'
