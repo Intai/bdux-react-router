@@ -1,17 +1,23 @@
+import * as R from 'ramda'
 import React from 'react'
-import LocationAction from '../actions/location-action'
+import { push } from '../actions/location-action'
 import { Link } from 'react-router-dom'
+import { createComponent } from 'bdux'
 
-const goTo = ({ to }) => (e) => {
-  LocationAction.push(to)
+const cleanProps = R.omit(
+  ['bdux', 'dispatch', 'bindToDispatch']
+)
+
+const goTo = ({ dispatch, to }) => (e) => {
+  dispatch(push(to))
   e.preventDefault()
 }
 
 export const LinkWrap = (props) => (
   <Link
-    {...props}
+    {...cleanProps(props)}
     onClick={goTo(props)}
   />
 )
 
-export default LinkWrap
+export default createComponent(LinkWrap)

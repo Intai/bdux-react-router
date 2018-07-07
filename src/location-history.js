@@ -17,8 +17,10 @@ const hijackHistoryListen = (history) => {
   return history
 }
 
-const getPathname = R.propOr(
-  null, 'pathname'
+const getPathname = R.ifElse(
+  R.is(String),
+  R.identity,
+  R.propOr(null, 'pathname')
 )
 
 const createInitialEntries = R.ifElse(
