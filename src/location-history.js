@@ -1,6 +1,6 @@
 import * as R from 'ramda'
 import Common from './utils/common-util'
-import LocationAction from './actions/location-action'
+import * as LocationAction from './actions/location-action'
 import { createMemoryHistory } from 'history'
 
 const hijackHistoryListen = (history) => {

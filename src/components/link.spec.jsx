@@ -6,7 +6,7 @@ import React from 'react'
 import { JSDOM } from 'jsdom'
 import { mount } from 'enzyme'
 import { MemoryRouter } from 'react-router-dom'
-import LocationAction from '../actions/location-action'
+import * as LocationAction from '../actions/location-action'
 import Link, { LinkWrap } from './link'
 
 const mountWithRouter = (children) => mount(
@@ -20,7 +20,7 @@ describe('Link Component', () => {
   let sandbox, event
 
   beforeEach(() => {
-    sandbox = sinon.sandbox.create()
+    sandbox = sinon.createSandbox()
     sandbox.stub(LocationAction, 'push')
     event = { preventDefault: sinon.stub() }
   })
@@ -39,7 +39,13 @@ describe('Link Component', () => {
   })
 
   it('should push location through action', () => {
-    const wrapper = mountWithRouter(<LinkWrap to="/path" />)
+    const wrapper = mountWithRouter(
+      <LinkWrap
+        dispatch={sinon.stub()}
+        to="/path"
+      />
+    )
+
     const link = wrapper.find('Link')
     link.simulate('click', event)
     chai.expect(LocationAction.push.calledOnce).to.be.true
@@ -47,7 +53,13 @@ describe('Link Component', () => {
   })
 
   it('should prevent click default', () => {
-    const wrapper = mountWithRouter(<LinkWrap to="/path" />)
+    const wrapper = mountWithRouter(
+      <LinkWrap
+        dispatch={sinon.stub()}
+        to="/path"
+      />
+    )
+
     const link = wrapper.find('Link')
     link.simulate('click', event)
     chai.expect(event.preventDefault.calledOnce).to.be.true

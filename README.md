@@ -16,9 +16,9 @@ npm install --save bdux-react-router
 
 ## Usage
 ```javascript
-import React from 'react';
-import { Router, Route, createLocationHistory } from 'bdux-react-router';
-import { LocationAction, LocationStore } from 'bdux-react-router';
+import React from 'react'
+import { Router, Route, createLocationHistory } from 'bdux-react-router'
+import { LocationAction, LocationStore } from 'bdux-react-router'
 import { createComponent } from 'bdux'
 
 export const App = ({ location }) => (
@@ -28,38 +28,36 @@ export const App = ({ location }) => (
       path="/path"
     />
   </Router>
-);
+)
 
 export default createComponent(App, {
   location: LocationStore
 },
 // start listening to browser history.
-LocationAction.listen);
+LocationAction.listen)
 ```
 Browser history changes are captured in `LocationAction` to `LocationStore` then into `Router`. The router component itself does not listen to browser history directly. This data flow ensures routing can be recorded and replayed by middleware.
 
 ## Link
 Link component is a convenient way to create a simple anchor element to update browser history through `LocationAction` without reloading the entire page.
 ```javascript
-<Link to="/path"> Text </Link>
+<Link to="/path">Text</Link>
 ```
 
 For more complex scenarios, create components to work with `LocationAction.push` or `LocationAction.replace`. Underneath these two functions use library [history](https://github.com/mjackson/history). Refer to their documentation about [location](https://github.com/mjackson/history/blob/master/docs/Location.md) for details.
 ```javascript
-import React from 'react';
-import LocationAction from 'bdux-react-router';
+import React from 'react'
+import LocationAction from 'bdux-react-router'
 
-const handleClick = () => {
-  LocationAction.push({
+const handleClick = ({ dispatch }) => () => {
+  dispatch(LocationAction.push({
     pathname: '/path'
-  });
-};
+  }))
+}
 
-export const Button = () => (
-  <button onClick={handleClick}> Go </button>
-);
-
-export default Button;
+export default (props) => (
+  <button onClick={handleClick(props)} />
+)
 ```
 
 ## License

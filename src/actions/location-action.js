@@ -4,7 +4,6 @@ import Common from '../utils/common-util'
 import Storage from '../utils/storage-util'
 import ActionTypes from './action-types'
 import { createBrowserHistory, createMemoryHistory } from 'history'
-import { bindToDispatch } from 'bdux'
 
 export const createPlatformHistory = R.ifElse(
   () => Common.canUseDOM(),
@@ -125,8 +124,8 @@ export const replace = R.pipe(
   updateHistory('replace')
 )
 
-export default bindToDispatch({
+export default {
   listen: onceThenNull(listen),
   push,
   replace
-})
+}

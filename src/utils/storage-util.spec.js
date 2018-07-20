@@ -10,7 +10,7 @@ describe('Storage Utilities', () => {
   let sandbox
 
   beforeEach(() => {
-    sandbox = sinon.sandbox.create()
+    sandbox = sinon.createSandbox()
     global.window = {
       sessionStorage: {
         removeItem: sinon.stub()

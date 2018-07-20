@@ -3,7 +3,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import Common from './utils/common-util'
-import LocationAction from './actions/location-action'
+import * as LocationAction from './actions/location-action'
 import {
   createLocationHistory,
   resetLocationHistory } from './location-history'
@@ -13,7 +13,7 @@ describe('Location History', () => {
   let sandbox
 
   beforeEach(() => {
-    sandbox = sinon.sandbox.create()
+    sandbox = sinon.createSandbox()
   })
 
   it('should create a location history object', () => {
