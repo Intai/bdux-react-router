@@ -17,7 +17,12 @@ import LocationAction, {
 
 describe('Location Action', () => {
 
-  let sandbox, clock
+  let sandbox, clock, dispose
+
+  const listenCallback = (callback) => {
+    dispose = listen().onValue(callback)
+    clock.tick(1)
+  }
 
   beforeEach(() => {
     sandbox = sinon.createSandbox()
@@ -45,8 +50,7 @@ describe('Location Action', () => {
 
   it('should create an update action for the current location', () => {
     const callback = sinon.stub()
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     chai.expect(callback.calledOnce).to.be.true
     chai.expect(callback.lastCall.args[0]).to.have.property('type')
       .and.equal(ActionTypes.ROUTE_LOCATION_UPDATE)
@@ -55,16 +59,14 @@ describe('Location Action', () => {
   it('should ignore the state of the current location', () => {
     const callback = sinon.stub()
     getHistory().location.state = {}
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     chai.expect(callback.calledOnce).to.be.true
     chai.expect(callback.lastCall.args[0]).to.not.have.nested.property('location.state')
   })
 
   it('should have pathname for the current location', () => {
     const callback = sinon.stub()
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     chai.expect(callback.calledOnce).to.be.true
     chai.expect(callback.lastCall.args[0]).to.have.property('location')
       .and.have.property('pathname', '/')
@@ -74,8 +76,7 @@ describe('Location Action', () => {
     const callback = sinon.stub()
     const history = getHistory()
     history.push('/test')
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     chai.expect(callback.calledOnce).to.be.true
     chai.expect(callback.lastCall.args[0]).to.have.property('location')
       .and.have.property('pathname', '/test')
@@ -83,16 +84,14 @@ describe('Location Action', () => {
 
   it('should clear session entry created by history library', () => {
     sandbox.stub(Storage, 'remove')
-    listen().onValue()
-    clock.tick(1)
+    listenCallback()
     chai.expect(Storage.remove.calledOnce).to.be.true
     chai.expect(Storage.remove.lastCall.args[0]).to.match(/^@@History\//)
   })
 
   it('should remember the last location', () => {
     const callback = sinon.stub()
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     chai.expect(callback.calledOnce).to.be.true
     chai.expect(callback.lastCall.args[0]).to.have.property('location')
       .and.eql(currentLocationProp.getLocation())
@@ -110,8 +109,7 @@ describe('Location Action', () => {
 
   it('should push a pathname', () => {
     const callback = sinon.stub()
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     push('/test/push')
     chai.expect(callback.calledTwice).to.be.true
     chai.expect(callback.lastCall.args[0]).to.have.nested.property('location.pathname')
@@ -120,8 +118,7 @@ describe('Location Action', () => {
 
   it('should push a history location', () => {
     const callback = sinon.stub()
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     push({ pathname: '/test/push/location' })
     chai.expect(callback.calledTwice).to.be.true
     chai.expect(callback.lastCall.args[0]).to.have.property('location')
@@ -130,17 +127,38 @@ describe('Location Action', () => {
 
   it('should not push the same location repeatedly', () => {
     const callback = sinon.stub()
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     push('/test/push/same')
     push({ pathname: '/test/push/same' })
     chai.expect(callback.calledTwice).to.be.true
   })
 
+  it('should not push the same location with action skipped', () => {
+    const callback = sinon.stub()
+    const history = getHistory()
+    sandbox.spy(history, 'push')
+    listenCallback(callback)
+    push('/test/push/same/skip')
+    push({ pathname: '/test/push/same/skip', state: { skipAction: true } })
+    chai.expect(history.push.calledOnce).to.be.true
+    chai.expect(history.location).to.deep.include({
+      pathname: '/test/push/same/skip',
+      search: '',
+      state: {}
+    })
+  })
+
+  it('should push a different location pathname', () => {
+    const callback = sinon.stub()
+    listenCallback(callback)
+    push('/test/push/diff/1')
+    push({ pathname: '/test/push/diff/2' })
+    chai.expect(callback.calledThrice).to.be.true
+  })
+
   it('should push a different location search', () => {
     const callback = sinon.stub()
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     push('/test/push/search')
     push({ pathname: '/test/push/search', search: 'query' })
     chai.expect(callback.calledThrice).to.be.true
@@ -148,17 +166,23 @@ describe('Location Action', () => {
 
   it('should push a different location state', () => {
     const callback = sinon.stub()
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     push('/test/push/state')
-    push({ pathname: '/test/push/state', state: {} })
+    push({ pathname: '/test/push/state', state: { sort: 'price' } })
     chai.expect(callback.calledThrice).to.be.true
+  })
+
+  it('should not push an empty location state from undefined', () => {
+    const callback = sinon.stub()
+    listenCallback(callback)
+    push('/test/push/state/empty')
+    push({ pathname: '/test/push/state/empty', state: {} })
+    chai.expect(callback.calledTwice).to.be.true
   })
 
   it('should replace a pathname', () => {
     const callback = sinon.stub()
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     replace('/test/replace')
     chai.expect(callback.calledTwice).to.be.true
     chai.expect(callback.lastCall.args[0]).to.have.nested.property('location.pathname')
@@ -167,8 +191,7 @@ describe('Location Action', () => {
 
   it('should replace a history location without creating an action', () => {
     const callback = sinon.stub()
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     replace({ pathname: '/test/replace/skip', state: { skipAction: true } })
     chai.expect(callback.calledOnce).to.be.true
     chai.expect(getHistory().location).to.have.property('pathname')
@@ -177,17 +200,26 @@ describe('Location Action', () => {
 
   it('should remember the last location without creating an action', () => {
     const callback = sinon.stub()
-    listen().onValue(callback)
-    clock.tick(1)
+    listenCallback(callback)
     replace({ pathname: '/test/current/skip', state: { skipAction: true } })
     chai.expect(callback.calledOnce).to.be.true
     chai.expect(currentLocationProp.getLocation()).to.have.property('pathname')
       .and.equal('/test/current/skip')
   })
 
+  it('should handle bacon end event', () => {
+    const callback = sinon.stub()
+    sandbox.stub(getHistory(), 'listen')
+      .callsFake((cb) => cb(new Bacon.End()))
+    listen().onEnd(callback)
+    clock.tick(1)
+    chai.expect(callback.calledOnce).to.be.true
+  })
+
   afterEach(() => {
     clock.restore()
     sandbox.restore()
+    dispose && dispose()
   })
 
 })

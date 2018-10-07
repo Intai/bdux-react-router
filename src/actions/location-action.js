@@ -5,8 +5,12 @@ import Storage from '../utils/storage-util'
 import ActionTypes from './action-types'
 import { createBrowserHistory, createMemoryHistory } from 'history'
 
+const canUseDOM = () => (
+  Common.canUseDOM()
+)
+
 export const createPlatformHistory = R.ifElse(
-  () => Common.canUseDOM(),
+  canUseDOM,
   createBrowserHistory,
   createMemoryHistory
 )
@@ -39,8 +43,9 @@ const defaultKeyValue = (key, value) => R.over(
 
 const cloneLocation = R.pipe(
   R.pick(['pathname', 'search', 'state']),
+  R.dissocPath(['state', 'skipAction']),
   defaultKeyValue('search', ''),
-  defaultKeyValue('state', undefined)
+  defaultKeyValue('state', {})
 )
 
 const isEqual = R.useWith(
@@ -57,6 +62,11 @@ const isCurrentLocation = R.converge(
   ]
 )
 
+const shouldSkipCurrentLocation = R.pipe(
+  currentLocationProp.getLocation,
+  R.pathOr(false, ['state', 'skipAction'])
+)
+
 const createLocation = (location) => ({
   pathname: location
 })
@@ -70,6 +80,8 @@ const mapLocation = R.ifElse(
 const updateHistory = R.curry((action, location) => {
   // if updating to a different location.
   if (!isCurrentLocation(location)) {
+    // keep the latest location.
+    currentLocationProp.setLocation(location)
     // push or replace with the new location.
     getHistory()[action](cloneLocation(location))
   }
@@ -92,9 +104,27 @@ const removeHistorySession = (location) => {
   Storage.remove('@@History/' + location.key)
 }
 
-const shouldDispatchAction = R.complement(
-  R.pathOr(false, ['state', 'skipAction'])
+const shouldSkipAction = R.both(
+  shouldSkipCurrentLocation,
+  isCurrentLocation
 )
+
+function handleLocation(event) {
+  if (event.hasValue) {
+    // get the location update.
+    const location = event.value
+    // don't dispatch another action from location-history.
+    const shouldSkip = shouldSkipAction(location)
+    // remember the location object.
+    currentLocationProp.setLocation(location)
+
+    if (shouldSkip) {
+      return
+    }
+  }
+
+  return this.push(event)
+}
 
 export const listen = () => (
   Bacon.mergeAll(
@@ -105,10 +135,8 @@ export const listen = () => (
   )
   // remove session entry created by history library.
   .doAction(removeHistorySession)
-  // remember the location object.
-  .doAction(currentLocationProp.setLocation)
-  // don't dispatch another action from location-history.
-  .filter(shouldDispatchAction)
+  // handle the location update.
+  .withHandler(handleLocation)
   // create an action to update location store.
   .map(R.objOf('location'))
   .map(R.assoc('type', ActionTypes.ROUTE_LOCATION_UPDATE))
