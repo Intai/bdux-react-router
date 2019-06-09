@@ -1,23 +1,22 @@
-import * as R from 'ramda'
 import React from 'react'
 import * as LocationAction from '../actions/location-action'
 import { Link } from 'react-router-dom'
-import { createComponent } from 'bdux'
+import { useBdux } from 'bdux'
 
-const cleanProps = R.omit(
-  ['bdux', 'dispatch', 'bindToDispatch']
-)
-
-const goTo = ({ dispatch, to }) => (e) => {
+const goTo = (dispatch, { to }) => (e) => {
   dispatch(LocationAction.push(to))
   e.preventDefault()
 }
 
-export const LinkWrap = (props) => (
-  <Link
-    {...cleanProps(props)}
-    onClick={goTo(props)}
-  />
-)
+export const LinkWrap = (props) => {
+  const { dispatch } = useBdux(props)
+  return (
+    <Link
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...props}
+      onClick={goTo(dispatch, props)}
+    />
+  )
+}
 
-export default createComponent(LinkWrap)
+export default React.memo(LinkWrap)

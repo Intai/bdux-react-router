@@ -5,14 +5,10 @@ import Storage from '../utils/storage-util'
 import ActionTypes from './action-types'
 import { createBrowserHistory, createMemoryHistory } from 'history'
 
-const canUseDOM = () => (
+export const createPlatformHistory = () => (
   Common.canUseDOM()
-)
-
-export const createPlatformHistory = R.ifElse(
-  canUseDOM,
-  createBrowserHistory,
-  createMemoryHistory
+    ? createBrowserHistory()
+    : createMemoryHistory()
 )
 
 export const getHistory = (() => {

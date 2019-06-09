@@ -39,13 +39,7 @@ describe('Link Component', () => {
   })
 
   it('should push location through action', () => {
-    const wrapper = mountWithRouter(
-      <LinkWrap
-        dispatch={sinon.stub()}
-        to="/path"
-      />
-    )
-
+    const wrapper = mountWithRouter(<LinkWrap to="/path" />)
     const link = wrapper.find('Link')
     link.simulate('click', event)
     chai.expect(LocationAction.push.calledOnce).to.be.true
@@ -53,21 +47,20 @@ describe('Link Component', () => {
   })
 
   it('should prevent click default', () => {
-    const wrapper = mountWithRouter(
-      <LinkWrap
-        dispatch={sinon.stub()}
-        to="/path"
-      />
-    )
-
+    const wrapper = mountWithRouter(<LinkWrap to="/path" />)
     const link = wrapper.find('Link')
     link.simulate('click', event)
     chai.expect(event.preventDefault.calledOnce).to.be.true
   })
 
   it('should be able style color', () => {
-    // eslint-disable-next-line react/jsx-max-props-per-line
-    const wrapper = mountWithRouter(<Link style={{ color: 'test' }} to="/path" />)
+    const wrapper = mountWithRouter(
+      <Link
+        style={{ color: 'test' }}
+        to="/path"
+      />
+    )
+
     const link = wrapper.find('Link')
     chai.expect(link.prop('style')).to.have.property('color', 'test')
   })
