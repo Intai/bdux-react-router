@@ -50,6 +50,18 @@ describe('Location History', () => {
     })
   })
 
+  it('should set the current pathname', () => {
+    sandbox.stub(LocationAction, 'replace')
+    resetLocationHistory('/pathname')
+    const history = createLocationHistory(undefined)
+    chai.expect(history.location).to.include({
+      pathname: '/pathname',
+      search: '',
+      hash: '',
+      state: undefined
+    })
+  })
+
   it('should replace location thourgh action to reset ', () => {
     sandbox.stub(LocationAction, 'replace')
     resetLocationHistory({ pathname: '/test' })
@@ -60,11 +72,10 @@ describe('Location History', () => {
   })
 
   it('should defer update on client', () => {
-    const deferOnClient = sinon.stub()
-    sandbox.stub(Common, 'deferOnClient').returns(deferOnClient)
+    const deferOnClient = sandbox.stub(Common, 'deferOnClient')
     createLocationHistory({})
     chai.expect(deferOnClient.calledOnce).to.be.true
-    chai.expect(deferOnClient.lastCall.args[0]).to.eql({})
+    chai.expect(deferOnClient.lastCall.args[1]).to.eql({})
   })
 
   it('should not update without location', () => {
@@ -77,8 +88,8 @@ describe('Location History', () => {
 
     beforeEach(() => {
       sandbox.stub(LocationAction, 'replace')
-      sandbox.stub(Common, 'deferOnClient').returns((location) => {
-        Common.deferOnClient.lastCall.args[0](location)
+      sandbox.stub(Common, 'deferOnClient').callsFake((updateLocation, location) => {
+        updateLocation(location)
       })
     })
 

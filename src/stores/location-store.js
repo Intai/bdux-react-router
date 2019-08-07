@@ -1,34 +1,34 @@
-import * as R from 'ramda'
+import {
+  assoc,
+  path,
+  pathEq,
+  prop,
+  when,
+} from 'ramda'
 import Bacon from 'baconjs'
 import ActionTypes from '../actions/action-types'
 import StoreNames from '../stores/store-names'
 import { createStore } from 'bdux'
 
-const isAction = R.pathEq(
+const isAction = pathEq(
   ['action', 'type']
 )
 
-const mergeState = (getValue) => (
-  R.converge(R.merge, [
-    R.identity,
-    R.pipe(
-      getValue,
-      R.objOf('state')
-    )
-  ])
+const mergeState = (func) => (args) => (
+  assoc('state', func(args), args)
 )
 
-const whenUpdate = R.when(
+const whenUpdate = when(
   // if updating route location.
   isAction(ActionTypes.ROUTE_LOCATION_UPDATE),
   // replace the location state.
-  mergeState(R.path(['action', 'location']))
+  mergeState(path(['action', 'location']))
 )
 
 const getOutputStream = (reducerStream) => (
   reducerStream
     .map(whenUpdate)
-    .map(R.prop('state'))
+    .map(prop('state'))
 )
 
 export const getReducer = () => {

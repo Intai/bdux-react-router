@@ -1,4 +1,7 @@
-import * as R from 'ramda'
+import {
+  once,
+  reduce,
+} from 'ramda'
 
 const PREFIX = 'BDUXRL'
 
@@ -13,13 +16,13 @@ export const canUseDOM = () => (
     && window.document.createElement
 )
 
-const canUseDOMOnce = R.once(
+const canUseDOMOnce = once(
   canUseDOM
 )
 
-export const deferOnClient = (pred) => (func) => (...args) => {
+export const deferOnClient = (pred) => (func, ...args) => {
   if (pred()) {
-    setTimeout(R.partial(func, args), 1)
+    setTimeout(() => func(...args), 1)
   }
 }
 
@@ -31,7 +34,7 @@ export default {
 
   // map an array of strings to
   // object keys and prefixed values.
-  createObjOfConsts: (values) => R.reduce(
+  createObjOfConsts: (values) => reduce(
     mapToKeyValue, {}, values
   )
 }

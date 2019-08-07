@@ -51,7 +51,7 @@ describe('Common Utilities', () => {
   it('should defer on client', () => {
     const callback = sinon.stub()
     global.window = { document: { createElement: () => {} }}
-    deferOnClient(canUseDOM)(callback)('test')
+    deferOnClient(canUseDOM)(callback, 'test')
     clock.tick(1)
     chai.expect(callback.calledOnce).to.be.true
     chai.expect(callback.lastCall.args[0]).to.equal('test')
@@ -60,7 +60,7 @@ describe('Common Utilities', () => {
   it('should not defer on server', () => {
     const callback = sinon.stub()
     global.window = undefined
-    deferOnClient(canUseDOM)(callback)()
+    deferOnClient(canUseDOM)(callback)
     clock.tick(1)
     chai.expect(callback.called).to.be.false
   })
@@ -70,7 +70,7 @@ describe('Common Utilities', () => {
     global.window = undefined
     Common.canUseDOM()
     global.window = { document: { createElement: () => {} }}
-    Common.deferOnClient(callback)()
+    Common.deferOnClient(callback)
     clock.tick(1)
     chai.expect(callback.called).to.be.false
   })

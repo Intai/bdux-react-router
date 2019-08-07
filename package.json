@@ -2,6 +2,7 @@
   "name": "bdux-react-router",
   "version": "16.8.0",
   "description": "A Bdux Addon",
+  "module": "es/index.js",
   "main": "lib/index.js",
   "scripts": {
     "test": "gulp cover",

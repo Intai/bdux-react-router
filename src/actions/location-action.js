@@ -1,4 +1,15 @@
-import * as R from 'ramda'
+import {
+  assoc,
+  both,
+  defaultTo,
+  dissoc,
+  dissocPath,
+  equals,
+  objOf,
+  pathOr,
+  pick,
+  pipe,
+} from 'ramda'
 import Bacon from 'baconjs'
 import Common from '../utils/common-util'
 import Storage from '../utils/storage-util'
@@ -29,51 +40,43 @@ export const currentLocationProp = (() => {
 })()
 
 const getInitialHistoryLocation = () => (
-  R.dissoc('state', getHistory().location)
+  dissoc('state', getHistory().location)
 )
 
-const defaultKeyValue = (key, value) => R.over(
-  R.lensProp(key),
-  R.defaultTo(value)
+const defaultKeyValue = (key, value) => (obj) => (
+  assoc(key, defaultTo(value, obj[key]), obj)
 )
 
-const cloneLocation = R.pipe(
-  R.pick(['pathname', 'search', 'state']),
-  R.dissocPath(['state', 'skipAction']),
+const cloneLocation = pipe(
+  pick(['pathname', 'search', 'state']),
+  dissocPath(['state', 'skipAction']),
   defaultKeyValue('search', ''),
   defaultKeyValue('state', {})
 )
 
-const isEqual = R.useWith(
-  R.equals, [
-    cloneLocation,
-    cloneLocation
-  ]
+const isCurrentLocation = (location) => (
+  equals(
+    cloneLocation(location || {}),
+    cloneLocation(currentLocationProp.getLocation())
+  )
 )
 
-const isCurrentLocation = R.converge(
-  isEqual, [
-    R.identity,
-    currentLocationProp.getLocation
-  ]
-)
-
-const shouldSkipCurrentLocation = R.pipe(
+const shouldSkipCurrentLocation = pipe(
   currentLocationProp.getLocation,
-  R.pathOr(false, ['state', 'skipAction'])
+  pathOr(false, ['state', 'skipAction'])
 )
 
 const createLocation = (location) => ({
   pathname: location
 })
 
-const mapLocation = R.ifElse(
-  R.is(String),
-  createLocation,
-  R.identity
+const mapLocation = (location) => (
+  (typeof location === 'string')
+    ? createLocation(location)
+    : location
 )
 
-const updateHistory = R.curry((action, location) => {
+const updateHistory = (action) => (location) => {
   // if updating to a different location.
   if (!isCurrentLocation(location)) {
     // keep the latest location.
@@ -81,7 +84,7 @@ const updateHistory = R.curry((action, location) => {
     // push or replace with the new location.
     getHistory()[action](cloneLocation(location))
   }
-})
+}
 
 const onceThenNull = (func) => {
   let count = 0
@@ -92,15 +95,15 @@ const onceThenNull = (func) => {
   )
 }
 
-const pushLocation = R.curry((sink, location) => {
+const pushLocation = (sink) => (location) => {
   sink(location)
-})
+}
 
 const removeHistorySession = (location) => {
   Storage.remove('@@History/' + location.key)
 }
 
-const shouldSkipAction = R.both(
+const shouldSkipAction = both(
   shouldSkipCurrentLocation,
   isCurrentLocation
 )
@@ -134,16 +137,16 @@ export const listen = () => (
   // handle the location update.
   .withHandler(handleLocation)
   // create an action to update location store.
-  .map(R.objOf('location'))
-  .map(R.assoc('type', ActionTypes.ROUTE_LOCATION_UPDATE))
+  .map(objOf('location'))
+  .map(assoc('type', ActionTypes.ROUTE_LOCATION_UPDATE))
 )
 
-export const push = R.pipe(
+export const push = pipe(
   mapLocation,
   updateHistory('push')
 )
 
-export const replace = R.pipe(
+export const replace = pipe(
   mapLocation,
   updateHistory('replace')
 )

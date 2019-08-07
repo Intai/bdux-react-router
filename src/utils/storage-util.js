@@ -1,4 +1,4 @@
-import * as R from 'ramda'
+import { when } from 'ramda'
 import Common from './common-util'
 
 export const remove = (name) => (
@@ -7,7 +7,7 @@ export const remove = (name) => (
 
 export default {
 
-  remove: R.when(
+  remove: when(
     () => Common.canUseDOM(),
     remove
   )

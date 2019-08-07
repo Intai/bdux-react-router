@@ -1,10 +1,15 @@
-import * as R from 'ramda'
+import {
+  assocPath,
+  F,
+  pipe,
+  tap,
+} from 'ramda'
 import Common from './utils/common-util'
 import * as LocationAction from './actions/location-action'
 import { createMemoryHistory } from 'history'
 
 const hijackHistoryListen = (history) => {
-  let prevListen = R.F
+  let prevListen = F
 
   history.listen = (callback) => (
     (callback)
@@ -17,19 +22,19 @@ const hijackHistoryListen = (history) => {
   return history
 }
 
-const getPathname = R.ifElse(
-  R.is(String),
-  R.identity,
-  R.propOr(null, 'pathname')
+const getPathname = (location) => (
+  (typeof location === 'string')
+    ? location
+    : (location ? location.pathname : null)
 )
 
-const createInitialEntries = R.ifElse(
-  R.identity,
-  R.pipe(R.of, R.objOf('initialEntries')),
-  R.always({})
+const createInitialEntries = (pathname) => (
+  (pathname)
+    ? { initialEntries: [pathname] }
+    : {}
 )
 
-const createHistory = R.pipe(
+const createHistory = pipe(
   getPathname,
   createInitialEntries,
   createMemoryHistory,
@@ -46,59 +51,52 @@ const historyProp = (() => {
   }
 })()
 
-const getHistoryListen = R.pipe(
-  historyProp.getHistory,
-  R.prop('listen'),
-  R.call
-)
-
-const addLocationState = R.assocPath(
+const addLocationState = assocPath(
   ['state', 'skipAction'],
   true
 )
 
-const pushHistoryListen = R.converge(
-  R.call, [
-    // get the callback currently
-    // bound to react-router history listen.
-    getHistoryListen,
+const pushHistoryListen = (location) => (
+  // get the callback currently
+  // bound to react-router history listen.
+  historyProp.getHistory(location)
     // the new location.
-    R.identity
-  ]
+    .listen()(location)
 )
 
-const updateLocation = R.pipe(
+const updateLocation = pipe(
   // add state to skip action.
   addLocationState,
   // update browser history through action.
-  R.tap(location => LocationAction.replace(location)),
+  tap(location => LocationAction.replace(location)),
   // trigger react-router history listen.
   pushHistoryListen
 )
 
-const deferUpdateLocation = R.when(
-  R.is(Object),
-  location => Common.deferOnClient(updateLocation)(location)
-)
+const deferUpdateLocation = (location) => {
+  if (location && typeof location === 'object') {
+    Common.deferOnClient(updateLocation, location)
+  }
+}
 
-export const resetLocationHistory = R.pipe(
+export const resetLocationHistory = pipe(
   // force to recreate history.
-  R.tap(historyProp.setHistory),
+  tap(historyProp.setHistory),
   // and update location store.
   location => LocationAction.replace(location)
 )
 
-export const createLocationHistory = R.converge(
-  R.identity, [
-    // initialise history if hasn't.
-    // always return the same react-router history
-    // because it does not support changing history.
-    historyProp.getHistory,
-    // react-router v4 doesn't update component
-    // with the location sent through history listen.
-    // workaround by modifying history itself.
-    historyProp.updateHistory,
-    // defer to be after render.
-    deferUpdateLocation
-  ]
-)
+export const createLocationHistory = (location) => {
+  // initialise history if hasn't.
+  // always return the same react-router history
+  // because it does not support changing history.
+  const history = historyProp.getHistory(location)
+  // react-router v4 doesn't update component
+  // with the location sent through history listen.
+  // workaround by modifying history itself.
+  historyProp.updateHistory(location)
+  // defer to be after render.
+  deferUpdateLocation(location)
+
+  return history
+}
