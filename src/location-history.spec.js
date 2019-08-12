@@ -39,7 +39,7 @@ describe('Location History', () => {
   })
 
   it('should set the current location', () => {
-    sandbox.stub(LocationAction, 'replace')
+    sandbox.stub(LocationAction, 'reset')
     resetLocationHistory({ pathname: '/test' })
     const history = createLocationHistory(undefined)
     chai.expect(history.location).to.include({
@@ -51,7 +51,7 @@ describe('Location History', () => {
   })
 
   it('should set the current pathname', () => {
-    sandbox.stub(LocationAction, 'replace')
+    sandbox.stub(LocationAction, 'reset')
     resetLocationHistory('/pathname')
     const history = createLocationHistory(undefined)
     chai.expect(history.location).to.include({
@@ -63,10 +63,10 @@ describe('Location History', () => {
   })
 
   it('should replace location thourgh action to reset ', () => {
-    sandbox.stub(LocationAction, 'replace')
+    sandbox.stub(LocationAction, 'reset')
     resetLocationHistory({ pathname: '/test' })
-    chai.expect(LocationAction.replace.calledOnce).to.be.true
-    chai.expect(LocationAction.replace.lastCall.args[0]).to.eql({
+    chai.expect(LocationAction.reset.calledOnce).to.be.true
+    chai.expect(LocationAction.reset.lastCall.args[0]).to.eql({
       pathname: '/test'
     })
   })

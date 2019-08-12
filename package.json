@@ -39,7 +39,7 @@
     "@babel/register": "^7.5.5",
     "babel-plugin-istanbul": "^5.2.0",
     "baconjs": "^2.0.13",
-    "bdux": "^16.8.12",
+    "bdux": "^16.8.15",
     "chai": "^4.2.0",
     "coveralls": "^3.0.6",
     "cross-env": "^5.2.0",

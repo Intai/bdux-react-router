@@ -79,12 +79,12 @@ const deferUpdateLocation = (location) => {
   }
 }
 
-export const resetLocationHistory = pipe(
+export const resetLocationHistory = (location) => {
   // force to recreate history.
-  tap(historyProp.setHistory),
+  historyProp.setHistory(location)
   // and update location store.
-  location => LocationAction.replace(location)
-)
+  LocationAction.reset(location)
+}
 
 export const createLocationHistory = (location) => {
   // initialise history if hasn't.

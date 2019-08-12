@@ -13,7 +13,9 @@ import LocationAction, {
   currentLocationProp,
   listen,
   push,
-  replace } from './location-action'
+  replace,
+  reset,
+} from './location-action'
 
 describe('Location Action', () => {
 
@@ -35,8 +37,8 @@ describe('Location Action', () => {
 
   it('should start listening only once', () => {
     const dispose = getActionStream().onValue()
-    LocationAction.listen()
-    chai.expect(LocationAction.listen()).to.not.be.ok
+    const stream = LocationAction.listen()
+    chai.expect(LocationAction.listen()).to.equal(stream)
     dispose()
   })
 
@@ -205,6 +207,29 @@ describe('Location Action', () => {
     chai.expect(callback.calledOnce).to.be.true
     chai.expect(currentLocationProp.getLocation()).to.have.property('pathname')
       .and.equal('/test/current/skip')
+  })
+
+  it('should reset even for the same location', () => {
+    const callback = sinon.stub()
+    listenCallback(callback)
+    reset('/test/reset/same')
+    reset({ pathname: '/test/reset/same' })
+    chai.expect(callback.callCount).to.equal(3)
+  })
+
+  it('should reset the same location with action skipped', () => {
+    const callback = sinon.stub()
+    const history = getHistory()
+    sandbox.spy(history, 'replace')
+    listenCallback(callback)
+    reset('/test/reset/same/skip')
+    reset({ pathname: '/test/reset/same/skip', state: { skipAction: true } })
+    chai.expect(history.replace.callCount).to.equal(2)
+    chai.expect(history.location).to.deep.include({
+      pathname: '/test/reset/same/skip',
+      search: '',
+      state: {}
+    })
   })
 
   it('should handle bacon end event', () => {

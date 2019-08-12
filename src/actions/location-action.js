@@ -6,6 +6,7 @@ import {
   dissocPath,
   equals,
   objOf,
+  once,
   pathOr,
   pick,
   pipe,
@@ -76,23 +77,14 @@ const mapLocation = (location) => (
     : location
 )
 
-const updateHistory = (action) => (location) => {
+const updateHistory = (action, force) => (location) => {
   // if updating to a different location.
-  if (!isCurrentLocation(location)) {
+  if (force || !isCurrentLocation(location)) {
     // keep the latest location.
     currentLocationProp.setLocation(location)
     // push or replace with the new location.
     getHistory()[action](cloneLocation(location))
   }
-}
-
-const onceThenNull = (func) => {
-  let count = 0
-  return () => (
-    (count++ <= 0)
-      ? func()
-      : null
-  )
 }
 
 const pushLocation = (sink) => (location) => {
@@ -151,8 +143,14 @@ export const replace = pipe(
   updateHistory('replace')
 )
 
+export const reset = pipe(
+  mapLocation,
+  updateHistory('replace', true)
+)
+
 export default {
-  listen: onceThenNull(listen),
+  listen: once(listen),
   push,
-  replace
+  replace,
+  reset,
 }
