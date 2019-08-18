@@ -1,26 +1,12 @@
 import {
   assocPath,
-  F,
   pipe,
   tap,
 } from 'ramda'
 import Common from './utils/common-util'
+import { isLocationEqual } from './utils/location-util'
 import * as LocationAction from './actions/location-action'
 import { createMemoryHistory } from 'history'
-
-const hijackHistoryListen = (history) => {
-  let prevListen = F
-
-  history.listen = (callback) => (
-    (callback)
-      // bind the listener.
-      ? (prevListen = callback)
-      // return the currently bound listener.
-      : prevListen
-  )
-
-  return history
-}
 
 const getPathname = (location) => (
   (typeof location === 'string')
@@ -37,8 +23,7 @@ const createInitialEntries = (pathname) => (
 const createHistory = pipe(
   getPathname,
   createInitialEntries,
-  createMemoryHistory,
-  hijackHistoryListen
+  createMemoryHistory
 )
 
 const historyProp = (() => {
@@ -57,11 +42,8 @@ const addLocationState = assocPath(
 )
 
 const pushHistoryListen = (location) => (
-  // get the callback currently
-  // bound to react-router history listen.
   historyProp.getHistory(location)
-    // the new location.
-    .listen()(location)
+    .replace(location)
 )
 
 const updateLocation = pipe(
@@ -91,12 +73,15 @@ export const createLocationHistory = (location) => {
   // always return the same react-router history
   // because it does not support changing history.
   const history = historyProp.getHistory(location)
-  // react-router v4 doesn't update component
-  // with the location sent through history listen.
-  // workaround by modifying history itself.
-  historyProp.updateHistory(location)
-  // defer to be after render.
-  deferUpdateLocation(location)
+
+  if (!isLocationEqual(location, history.location)) {
+    // react-router v4 doesn't update component
+    // with the location sent through history listen.
+    // workaround by modifying history itself.
+    historyProp.updateHistory(location)
+    // defer to be after render.
+    deferUpdateLocation(location)
+  }
 
   return history
 }

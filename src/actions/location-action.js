@@ -1,19 +1,16 @@
 import {
   assoc,
   both,
-  defaultTo,
   dissoc,
-  dissocPath,
-  equals,
   objOf,
   once,
   pathOr,
-  pick,
   pipe,
 } from 'ramda'
 import Bacon from 'baconjs'
 import Common from '../utils/common-util'
 import Storage from '../utils/storage-util'
+import { cloneLocation, isLocationEqual } from '../utils/location-util'
 import ActionTypes from './action-types'
 import { createBrowserHistory, createMemoryHistory } from 'history'
 
@@ -44,21 +41,10 @@ const getInitialHistoryLocation = () => (
   dissoc('state', getHistory().location)
 )
 
-const defaultKeyValue = (key, value) => (obj) => (
-  assoc(key, defaultTo(value, obj[key]), obj)
-)
-
-const cloneLocation = pipe(
-  pick(['pathname', 'search', 'state']),
-  dissocPath(['state', 'skipAction']),
-  defaultKeyValue('search', ''),
-  defaultKeyValue('state', {})
-)
-
 const isCurrentLocation = (location) => (
-  equals(
-    cloneLocation(location || {}),
-    cloneLocation(currentLocationProp.getLocation())
+  isLocationEqual(
+    location || {},
+    currentLocationProp.getLocation()
   )
 )
 

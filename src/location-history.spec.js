@@ -84,6 +84,13 @@ describe('Location History', () => {
     chai.expect(Common.deferOnClient.called).to.be.false
   })
 
+  it('should not update the same location', () => {
+    sandbox.stub(Common, 'deferOnClient')
+    createLocationHistory({ pathname: '/test/same' })
+    createLocationHistory({ pathname: '/test/same' })
+    chai.expect(Common.deferOnClient.callCount).to.equal(1)
+  })
+
   describe('on client', () => {
 
     beforeEach(() => {
@@ -94,6 +101,7 @@ describe('Location History', () => {
     })
 
     it('should replace location thourgh action', () => {
+      resetLocationHistory()
       createLocationHistory({})
       chai.expect(LocationAction.replace.calledOnce).to.be.true
       chai.expect(LocationAction.replace.lastCall.args[0]).to.eql({
@@ -107,10 +115,10 @@ describe('Location History', () => {
       const history = createLocationHistory(null)
       const listener = sinon.stub()
       history.listen(listener)
-      createLocationHistory({ pathname: '/test' })
+      createLocationHistory({ pathname: '/test/listener' })
       chai.expect(listener.calledOnce).to.be.true
-      chai.expect(listener.lastCall.args[0]).to.eql({
-        pathname: '/test',
+      chai.expect(listener.lastCall.args[0]).to.deep.include({
+        pathname: '/test/listener',
         state: {
           skipAction: true
         }
@@ -119,9 +127,12 @@ describe('Location History', () => {
 
     it('should update location along with listener', () => {
       const history = createLocationHistory(null)
-      createLocationHistory({ pathname: '/test' })
-      chai.expect(history.location).to.eql({
-        pathname: '/test'
+      createLocationHistory({ pathname: '/test/variable' })
+      chai.expect(history.location).to.deep.include({
+        pathname: '/test/variable',
+        state: {
+          skipAction: true
+        }
       })
     })
 
