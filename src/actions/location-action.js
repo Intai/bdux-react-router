@@ -7,7 +7,7 @@ import {
   pathOr,
   pipe,
 } from 'ramda'
-import Bacon from 'baconjs'
+import * as Bacon from 'baconjs'
 import Common from '../utils/common-util'
 import Storage from '../utils/storage-util'
 import { cloneLocation, isLocationEqual } from '../utils/location-util'
@@ -86,21 +86,13 @@ const shouldSkipAction = both(
   isCurrentLocation
 )
 
-function handleLocation(event) {
-  if (event.hasValue) {
-    // get the location update.
-    const location = event.value
-    // don't dispatch another action from location-history.
-    const shouldSkip = shouldSkipAction(location)
-    // remember the location object.
-    currentLocationProp.setLocation(location)
-
-    if (shouldSkip) {
-      return
-    }
-  }
-
-  return this.push(event)
+const handleLocation = (location) => {
+  // don't dispatch another action from location-history.
+  const shouldSkip = shouldSkipAction(location)
+  // remember the location object.
+  currentLocationProp.setLocation(location)
+  // filter to continue if should not skip.
+  return !shouldSkip
 }
 
 export const listen = () => (
@@ -113,7 +105,7 @@ export const listen = () => (
   // remove session entry created by history library.
   .doAction(removeHistorySession)
   // handle the location update.
-  .withHandler(handleLocation)
+  .filter(handleLocation)
   // create an action to update location store.
   .map(objOf('location'))
   .map(assoc('type', ActionTypes.ROUTE_LOCATION_UPDATE))
