@@ -60,7 +60,7 @@ describe('Location Action', () => {
 
   it('should ignore the state of the current location', () => {
     const callback = sinon.stub()
-    getHistory().location.state = {}
+    getHistory().push('/', {})
     listenCallback(callback)
     chai.expect(callback.calledOnce).to.be.true
     chai.expect(callback.lastCall.args[0]).to.not.have.nested.property('location.state')
@@ -101,7 +101,7 @@ describe('Location Action', () => {
 
   it('should create a browser history', () => {
     sandbox.stub(Common, 'canUseDOM').returns(true)
-    chai.expect(createPlatformHistory).to.throw(/Browser history needs a DOM/i)
+    chai.expect(createPlatformHistory).to.throw(/document is not defined/i)
   })
 
   it('should create a memory history', () => {
@@ -146,7 +146,7 @@ describe('Location Action', () => {
     chai.expect(history.location).to.deep.include({
       pathname: '/test/push/same/skip',
       search: '',
-      state: {}
+      state: null
     })
   })
 
@@ -228,14 +228,14 @@ describe('Location Action', () => {
     chai.expect(history.location).to.deep.include({
       pathname: '/test/reset/same/skip',
       search: '',
-      state: {}
+      state: null
     })
   })
 
   it('should handle bacon end event', () => {
     const callback = sinon.stub()
     sandbox.stub(getHistory(), 'listen')
-      .callsFake((cb) => cb(new Bacon.End()))
+      .callsFake((cb) => cb({ location: new Bacon.End() }))
     listen().onEnd(callback)
     clock.tick(1)
     chai.expect(callback.calledOnce).to.be.true

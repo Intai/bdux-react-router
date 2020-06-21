@@ -73,7 +73,7 @@ const updateHistory = (action, force) => (location) => {
   }
 }
 
-const pushLocation = (sink) => (location) => {
+const pushLocation = (sink) => ({ location }) => {
   sink(location)
 }
 

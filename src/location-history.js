@@ -32,7 +32,7 @@ const historyProp = (() => {
   return {
     setHistory: location => history = createHistory(location),
     getHistory: location => history || (history = createHistory(location)),
-    updateHistory: location => history && location && (history.location = location)
+    updateHistory: location => history && location && history.replace(location, { skipAction: true })
   }
 })()
 
@@ -41,18 +41,11 @@ const addLocationState = assocPath(
   true
 )
 
-const pushHistoryListen = (location) => (
-  historyProp.getHistory(location)
-    .replace(location)
-)
-
 const updateLocation = pipe(
   // add state to skip action.
   addLocationState,
   // update browser history through action.
-  tap(location => LocationAction.replace(location)),
-  // trigger react-router history listen.
-  pushHistoryListen
+  tap(location => LocationAction.replace(location))
 )
 
 const deferUpdateLocation = (location) => {

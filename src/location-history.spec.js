@@ -28,7 +28,7 @@ describe('Location History', () => {
       pathname: '/',
       search: '',
       hash: '',
-      state: undefined
+      state: null
     })
   })
 
@@ -46,7 +46,7 @@ describe('Location History', () => {
       pathname: '/test',
       search: '',
       hash: '',
-      state: undefined
+      state: null
     })
   })
 
@@ -58,7 +58,7 @@ describe('Location History', () => {
       pathname: '/pathname',
       search: '',
       hash: '',
-      state: undefined
+      state: null
     })
   })
 
@@ -117,7 +117,7 @@ describe('Location History', () => {
       history.listen(listener)
       createLocationHistory({ pathname: '/test/listener' })
       chai.expect(listener.calledOnce).to.be.true
-      chai.expect(listener.lastCall.args[0]).to.deep.include({
+      chai.expect(listener.lastCall.args[0].location).to.deep.include({
         pathname: '/test/listener',
         state: {
           skipAction: true
