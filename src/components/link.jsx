@@ -8,7 +8,7 @@ const goTo = (to, dispatch) => (e) => {
   e.preventDefault()
 }
 
-export const LinkWrap = (props) => {
+export function LinkWrap(props) {
   const { to } = props
   const { dispatch } = useBdux(props)
   const goToLink = useMemo(() => goTo(to, dispatch), [to, dispatch])
