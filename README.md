@@ -1,6 +1,6 @@
 # Bdux React Router
 
-[![Build Status](https://travis-ci.com/Intai/bdux-react-router.svg?branch=master)](https://travis-ci.com/Intai/bdux-react-router)
+[![Build Status](https://app.travis-ci.com/Intai/bdux-react-router.svg?branch=master)](https://app.travis-ci.com/Intai/bdux-react-router)
 [![Coverage Status](https://coveralls.io/repos/github/Intai/bdux-react-router/badge.svg?branch=master)](https://coveralls.io/github/Intai/bdux-react-router?branch=master)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/6e51138140e44317a20160124c995f4a)](https://www.codacy.com/gh/Intai/bdux-react-router/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Intai/bdux-react-router&amp;utm_campaign=Badge_Grade)
 
