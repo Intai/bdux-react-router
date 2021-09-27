@@ -20,10 +20,29 @@ const createInitialEntries = (pathname) => (
     : {}
 )
 
+const hijackListener = history => {
+  const { listen } = history
+
+  // if the listener hasn't been hijacked.
+  if (!listen.hijacked) {
+    // react-router doesn't support history v5 yet.
+    // workaround in the mean time.
+    // eslint-disable-next-line no-undef
+    const func = (cb, original) => (original || process)
+      ? listen(cb)
+      : listen(location => cb(location.location || location))
+    func.hijacked = true
+    history.listen = func
+  }
+
+  return history
+}
+
 const createHistory = pipe(
   getPathname,
   createInitialEntries,
-  createMemoryHistory
+  createMemoryHistory,
+  hijackListener
 )
 
 const historyProp = (() => {

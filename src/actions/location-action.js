@@ -100,7 +100,7 @@ export const listen = () => (
     // stream the current location.
     Bacon.once(getInitialHistoryLocation()),
     // location changes since the listening.
-    Bacon.fromBinder(sink => getHistory().listen(pushLocation(sink)))
+    Bacon.fromBinder(sink => getHistory().listen(pushLocation(sink), true))
   )
   // remove session entry created by history library.
   .doAction(removeHistorySession)
