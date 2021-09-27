@@ -28,7 +28,7 @@ const hijackListener = history => {
     // react-router doesn't support history v5 yet.
     // workaround in the mean time.
     // eslint-disable-next-line no-undef
-    const func = (cb, original) => (original || process)
+    const func = (cb, original) => (original || typeof process !== 'undefined')
       ? listen(cb)
       : listen(location => cb(location.location || location))
     func.hijacked = true
