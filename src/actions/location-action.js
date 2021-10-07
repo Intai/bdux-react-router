@@ -7,7 +7,11 @@ import {
   pathOr,
   pipe,
 } from 'ramda'
-import * as Bacon from 'baconjs'
+import {
+  fromBinder,
+  mergeAll,
+  once as baconOnce,
+} from 'baconjs'
 import Common from '../utils/common-util'
 import Storage from '../utils/storage-util'
 import { cloneLocation, isLocationEqual } from '../utils/location-util'
@@ -96,11 +100,11 @@ const handleLocation = (location) => {
 }
 
 export const listen = () => (
-  Bacon.mergeAll(
+  mergeAll(
     // stream the current location.
-    Bacon.once(getInitialHistoryLocation()),
+    baconOnce(getInitialHistoryLocation()),
     // location changes since the listening.
-    Bacon.fromBinder(sink => getHistory().listen(pushLocation(sink), true))
+    fromBinder(sink => getHistory().listen(pushLocation(sink), true))
   )
   // remove session entry created by history library.
   .doAction(removeHistorySession)
