@@ -64,4 +64,16 @@ describe('Location Utilities', () => {
     chai.expect(isLocationEqual(loc1, loc2)).to.be.true
   })
 
+  it('should compare undefined and null state', () => {
+    const loc1 = { pathname: '/equal' }
+    const loc2 = { pathname: '/equal', state: null }
+    chai.expect(isLocationEqual(loc1, loc2)).to.be.true
+  })
+
+  it('should ignore skipAction', () => {
+    const loc1 = { pathname: '/equal', state: { skipAction: true }}
+    const loc2 = { pathname: '/equal', state: null }
+    chai.expect(isLocationEqual(loc1, loc2)).to.be.true
+  })
+
 })

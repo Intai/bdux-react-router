@@ -1,6 +1,6 @@
 {
   "parserOptions": {
-    "ecmaVersion": 6,
+    "ecmaVersion": 9,
     "sourceType": "module",
     "ecmaFeatures": {
       "jsx": true
@@ -17,7 +17,8 @@
   ],
   "extends": [
     "eslint:recommended",
-    "plugin:react/all"
+    "plugin:react/all",
+    "plugin:react-hooks/recommended"
   ],
   "settings": {
     "react": {

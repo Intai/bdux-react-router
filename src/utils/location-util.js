@@ -5,7 +5,7 @@ export const cloneLocation = (location) => {
   return {
     pathname,
     search: search || '',
-    state: dissoc('skipAction', state),
+    state: dissoc('skipAction', state) || {},
   }
 }
 

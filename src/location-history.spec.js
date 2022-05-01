@@ -16,6 +16,10 @@ describe('Location History', () => {
     sandbox = sinon.createSandbox()
   })
 
+  afterEach(() => {
+    sandbox.restore()
+  })
+
   it('should create a location history object', () => {
     const history = createLocationHistory(null)
     chai.expect(history).to.have.property('listen')
@@ -136,10 +140,6 @@ describe('Location History', () => {
       })
     })
 
-  })
-
-  afterEach(() => {
-    sandbox.restore()
   })
 
 })

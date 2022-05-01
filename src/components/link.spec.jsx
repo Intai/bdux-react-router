@@ -4,12 +4,12 @@ import chai from 'chai'
 import sinon from 'sinon'
 import React from 'react'
 import { JSDOM } from 'jsdom'
-import { mount } from 'enzyme'
+import { createEvent, fireEvent, render } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import * as LocationAction from '../actions/location-action'
 import Link, { LinkWrap } from './link'
 
-const mountWithRouter = (children) => mount(
+const renderWithRouter = (children) => render(
   <MemoryRouter>
     {children}
   </MemoryRouter>
@@ -17,56 +17,56 @@ const mountWithRouter = (children) => mount(
 
 describe('Link Component', () => {
 
-  let sandbox, event
-
-  beforeEach(() => {
-    sandbox = sinon.createSandbox()
-    sandbox.stub(LocationAction, 'push')
-    event = { preventDefault: sinon.stub() }
-  })
+  let sandbox
 
   beforeEach(() => {
     const dom = new JSDOM('<html></html>')
     global.window = dom.window
     global.document = dom.window.document
     global.Element = dom.window.Element
+
+    sandbox = sinon.createSandbox()
+    sandbox.stub(LocationAction, 'push')
   })
 
-  it('should handle onclick', () => {
-    const wrapper = mountWithRouter(<Link to="/path" />)
-    const link = wrapper.find('Link')
-    chai.expect(link.prop('onClick')).to.be.a('function')
+  afterEach(() => {
+    sandbox.restore()
+  })
+
+  it('should handle onClick', () => {
+    const callback = sinon.stub()
+    renderWithRouter(<Link to="/path" as={callback} />)
+    chai.expect(callback.calledOnce).to.be.true
+    chai.expect(callback.firstCall.args[0]).to.have.property('onClick')
+      .and.is.a('function')
   })
 
   it('should push location through action', () => {
-    const wrapper = mountWithRouter(<LinkWrap to="/path" />)
-    const link = wrapper.find('Link')
-    link.simulate('click', event)
+    const { getByText } = renderWithRouter(<LinkWrap to="/path">Click</LinkWrap>)
+    fireEvent.click(getByText(/Click/))
     chai.expect(LocationAction.push.calledOnce).to.be.true
     chai.expect(LocationAction.push.lastCall.args[0]).to.equal('/path')
   })
 
   it('should prevent click default', () => {
-    const wrapper = mountWithRouter(<LinkWrap to="/path" />)
-    const link = wrapper.find('Link')
-    link.simulate('click', event)
-    chai.expect(event.preventDefault.calledOnce).to.be.true
+    const { getByText } = renderWithRouter(<LinkWrap to="/path" as="div">Click</LinkWrap>)
+    const event = createEvent.click(getByText(/Click/))
+    fireEvent(getByText(/Click/), event)
+    chai.expect(event.defaultPrevented).to.be.true
   })
 
   it('should be able style color', () => {
-    const wrapper = mountWithRouter(
+    const { getByText } = renderWithRouter(
       <Link
-        style={{ color: 'test' }}
         to="/path"
-      />
+        style={{ color: 'red' }}
+      >
+        {'Click'}
+      </Link>
     )
 
-    const link = wrapper.find('Link')
-    chai.expect(link.prop('style')).to.have.property('color', 'test')
-  })
-
-  afterEach(() => {
-    sandbox.restore()
+    const link = getByText(/Click/)
+    chai.expect(link.style).to.have.property('color', 'red')
   })
 
 })
