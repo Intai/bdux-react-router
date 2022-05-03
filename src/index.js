@@ -1,5 +1,5 @@
 export { default as LocationAction } from './actions/location-action'
 export { default as LocationStore } from './stores/location-store'
 export { default as Link } from './components/link'
-export { Router, Switch, Route } from 'react-router'
+export { Router, Routes, Route } from 'react-router'
 export * from './location-history'
