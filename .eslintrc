@@ -17,7 +17,7 @@
   ],
   "extends": [
     "eslint:recommended",
-    "plugin:react/all",
+    "plugin:react/recommended",
     "plugin:react-hooks/recommended"
   ],
   "settings": {

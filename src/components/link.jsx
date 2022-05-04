@@ -1,3 +1,4 @@
+import { omit } from 'ramda'
 import React, { createElement, useMemo } from 'react'
 import * as LocationAction from '../actions/location-action'
 import { Link } from 'react-router-dom'
@@ -14,7 +15,7 @@ export function LinkWrap(props) {
   const goToLink = useMemo(() => goTo(to, dispatch), [to, dispatch])
 
   return createElement(LinkComponent, {
-    ...props,
+    ...omit(['as'], props),
     onClick: goToLink,
   })
 }
