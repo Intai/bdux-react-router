@@ -1,6 +1,6 @@
 {
   "name": "bdux-react-router",
-  "version": "18.0.3",
+  "version": "18.0.4",
   "description": "A Bdux Addon",
   "module": "es/index.js",
   "main": "lib/index.js",
