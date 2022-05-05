@@ -69,4 +69,12 @@ describe('Link Component', () => {
     chai.expect(link.style).to.have.property('color', 'red')
   })
 
+  it('should render href as anchor', () => {
+    const { getByText } = renderWithRouter(<Link to="/path" as="a">Anchor</Link>)
+    const anchor = getByText(/Anchor/)
+    chai.expect(anchor.href).to.equal('/path')
+    chai.expect(anchor.getAttribute('as')).to.not.be.ok
+    chai.expect(anchor.getAttribute('to')).to.not.be.ok
+  })
+
 })

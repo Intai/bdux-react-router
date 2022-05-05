@@ -9,13 +9,23 @@ const goTo = (to, dispatch) => (e) => {
   e.preventDefault()
 }
 
+const cleanProps = (as, props) => {
+  if (as === 'a') {
+    return {
+      href: props.to,
+      ...omit(['as', 'to'], props),
+    }
+  }
+  return omit(['as'], props)
+}
+
 export function LinkWrap(props) {
   const { to, as: LinkComponent = Link } = props
   const { dispatch } = useBdux(props)
   const goToLink = useMemo(() => goTo(to, dispatch), [to, dispatch])
 
   return createElement(LinkComponent, {
-    ...omit(['as'], props),
+    ...cleanProps(LinkComponent, props),
     onClick: goToLink,
   })
 }
